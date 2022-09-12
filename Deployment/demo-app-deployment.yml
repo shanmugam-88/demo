@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-backend-deployment
+spec:
+  selector:
+    matchLabels:
+      name: demo-app-backend
+      teir: backend
+  replicas: 1
+  template: 
+    metadata:
+      labels:
+        name: demo-app-backend
+        teir: backend
+    spec:
+      volumes:
+        - name: application-config-volume
+          configMap:
+            name: demo-app-config
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+      - name: url-app
+        image: demo:demo:1.0.1
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-backend-service
+  labels:
+    name: demo-app-backend-service
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30015
+  selector:
+    name: demo-app-backend
+    teir: backend
